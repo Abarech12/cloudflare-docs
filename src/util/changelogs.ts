@@ -1,8 +1,17 @@
 import type { RSSFeedItem } from "@astrojs/rss";
 import { getCollection, getEntries, type CollectionEntry } from "astro:content";
-import { rehype } from "rehype";
 import { entryToString } from "~/util/container";
+
+import { unified, type PluggableList } from "unified";
+
+import rehypeParse from "rehype-parse";
+import rehypeStringify from "rehype-stringify";
+import rehypeBaseUrl from "~/plugins/rehype/base-url";
 import rehypeFilterElements from "~/plugins/rehype/filter-elements";
+
+import rehypeRemark from "rehype-remark";
+import remarkGfm from "remark-gfm";
+import remarkStringify from "remark-stringify";
 
 type DocsToChangelogOptions = {
 	name: string;
@@ -114,13 +123,32 @@ export async function getChangelogs({
 }
 
 type GetRSSItemsOptions = {
+	/**
+	 * An array of changelog entries from the `getChangelogs({})` function.
+	 * @see {@link getChangelogs}
+	 */
 	notes: Array<CollectionEntry<"changelogs-next">>;
+	/**
+	 * `locals`, either from `Astro.locals` in custom pages or
+	 * `context.locals` in endpoints.
+	 * @see {@link https://docs.astro.build/en/reference/api-reference/#locals}
+	 */
 	locals: App.Locals;
+	/**
+	 * Returns Markdown in the `<content:encoded>` field instead of HTML.
+	 * Markdown will contain `\n` in the output, as fast-xml-parser outputs
+	 * single-line strings.
+	 *
+	 * @example
+	 * # heading\n\ntext\ntext
+	 */
+	markdown?: boolean;
 };
 
 export async function getRSSItems({
 	notes,
 	locals,
+	markdown,
 }: GetRSSItemsOptions): Promise<Array<RSSFeedItem>> {
 	return await Promise.all(
 		notes.map(async (note) => {
@@ -130,14 +158,27 @@ export async function getRSSItems({
 			const productTitles = productEntries.map((p) => p.data.name);
 
 			const html = await entryToString(note, locals);
-			const file = await rehype()
+
+			let plugins: PluggableList = [
+				rehypeParse,
+				rehypeBaseUrl,
+				rehypeFilterElements,
+			];
+
+			if (markdown) {
+				plugins = plugins.concat([rehypeRemark, remarkGfm, remarkStringify]);
+			} else {
+				plugins = plugins.concat([rehypeStringify]);
+			}
+
+			const file = await unified()
 				.data("settings", {
 					fragment: true,
 				})
-				.use(rehypeFilterElements)
+				.use(plugins)
 				.process(html);
 
-			const content = String(file);
+			const content = String(file).trim();
 
 			return {
 				title: `${productTitles.join(", ")} - ${title}`,

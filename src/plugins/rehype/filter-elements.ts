@@ -101,7 +101,7 @@ const ALLOWED_ATTRIBUTES: Record<string, string[]> = {
 
 const UNWRAP_CLASS_NAMES = ["heading-wrapper"];
 
-const DISALLOWED_CLASS_NAMES = ["external-link"];
+const DISALLOWED_CLASS_NAMES = ["external-link", "anchor-link"];
 
 export default function () {
 	return function (tree: Root) {
@@ -114,12 +114,12 @@ export default function () {
 					return remove(index, parent);
 				}
 
-				if (UNWRAP_CLASS_NAMES.some((v) => classNames.includes(v))) {
-					return unwrap(index, parent, element);
-				}
-
 				if (DISALLOWED_CLASS_NAMES.some((v) => classNames.includes(v))) {
 					return remove(index, parent);
+				}
+
+				if (UNWRAP_CLASS_NAMES.some((v) => classNames.includes(v))) {
+					return unwrap(index, parent, element);
 				}
 
 				for (const key of Object.keys(element.properties)) {

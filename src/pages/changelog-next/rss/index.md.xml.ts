@@ -8,11 +8,12 @@ export const GET: APIRoute = async ({ locals }) => {
 	const items = await getRSSItems({
 		notes,
 		locals,
+		markdown: true,
 	});
 
 	return rss({
 		title: "Changelogs",
-		description: `Cloudflare changelogs - If you would like content as Markdown, rather than HTML, please use https://developers.cloudflare.com/changelog-next/index.md.xml`,
+		description: `Cloudflare changelogs - If you would like content as HTML, rather than Markdown, please use https://developers.cloudflare.com/changelog-next/index.xml`,
 		site: "https://developers.cloudflare.com/changelog-next/",
 		items,
 	});
