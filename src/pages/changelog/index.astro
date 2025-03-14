@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { getChangelogs } from "~/util/changelog";
 
 const notes = await getChangelogs({});
+const test = notes.filter(x => !(x.data.hidden === true))
 
 const props = {
 	frontmatter: {
