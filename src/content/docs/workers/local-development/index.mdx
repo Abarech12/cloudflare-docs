@@ -17,22 +17,28 @@ You can test changes locally using the following:
 
 Both approaches aim to provide confidence that your local environment will closely match the production runtime, removing the need to [test against remote resources](#develop-using-remote-resources-and-bindings).
 
-## Choosing Between Wrangler and the Vite Plugin
+## Choosing Between Wrangler and Vite
 
-When you are building with Cloudflare Workers, choosing between Wrangler and the Cloudflare Vite plugin primarily depends on your project’s scope and development workflow. Below are some guidelines to help you decide which toolset to use.
+Deciding between Wrangler and the Cloudflare Vite plugin depends on your project's focus and development workflow. Here are some quick guidelines to help you choose:
 
-### When to use Wrangler
+### When to use Wrangler:
 
-- **Backend and Workers-focused development:** Ideal if your primary goal is to build serverless functions, APIs, or other background tasks that need to closely resemble production behavior. Wrangler provides the most accurate local simulation of Cloudflare’s runtime.
+- **Backend & Workers-focused:**
+  If you're primarily building APIs, serverless functions, or background tasks that need to closely match production behavior, use Wrangler. Wrangler offers the most accurate local simulation of Cloudflare’s runtime.
 
-- **Testing with real Cloudflare resources:** If you need to verify interactions with actual Cloudflare data or services, Wrangler’s `--remote` flag lets you test in a production-like environment without deploying your app fully to production.
+- **Real Cloudflare resources:**
+  Need to test actual Cloudflare data or services? Wrangler’s `--remote` flag lets you do so without fully deploying to production.
 
-- **Limited frontend requirements:** Wrangler is well suited for simple or minimal frontend needs, where complex bundling and advanced development features (like Hot Module Replacement) are not critical.
+- **Simple frontends:**
+  If you have minimal frontend requirements and don’t need hot reloading or advanced bundling, Wrangler by itself is sufficient.
 
-### When to use the Cloudflare Vite Plugin
+### When to use the Cloudflare Vite Plugin:
 
-- **Frontend-intensive developmentL** If your application relies heavily on modern frontend [frameworks](/workers/frameworks/) — such as React, Vue, Svelte, or Solid — the Vite plugin makes setup and configuration straightforward.
+- **Frontend-centric development:**
+  If you rely on modern frameworks like React, Vue, Svelte, or Solid, the Vite plugin simplifies setup and integration.
 
-- **Rapid iteration with HMR:** Hot Module Replacement (HMR) provides near-instant reloads whenever you make changes. This speeds up development by letting you see updates in the browser without a full page refresh.
+- **Rapid iteration (HMR):**
+  If you need near-instant updates in the browser, the Vite plugin provides Hot Module Replacement (HMR) during local development.
 
-- **Advanced frontend optimizations**: The Vite plugin supports tree-shaking, code splitting, efficient bundling, CSS handling, and caching strategies. If you require optimized frontend delivery — especially for large or complex UIs — Vite is a strong fit.
+- **Advanced optimizations:**
+  If you require more advanced optimizations (tree-shaking, code splitting, efficient bundling, CSS handling, etc), Vite is a strong fit.
