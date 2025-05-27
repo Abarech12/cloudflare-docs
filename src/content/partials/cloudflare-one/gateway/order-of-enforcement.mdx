@@ -41,7 +41,7 @@ flowchart TB
     dns3 -- Resolved by --> dns4
     dns2 -----> internet(["Internet"])
     dns4 -----> internet
-    dns4 -.-> cloudflare["Private network services <br>(Cloudflare Tunnel, Magic WAN, WARP Connector)"]
+    dns4 ---> cloudflare["Private network services <br>(Cloudflare Tunnel, Magic WAN, WARP Connector)"]
     http1 -- Do Not Inspect --> internet
     http1 -- Inspect --> http2
     http2 --> http3
@@ -53,7 +53,7 @@ flowchart TB
     https -- HTTPS --> http1
     https -- HTTP --> http2
     network1 --> https & nonhttp
-    dns3 --> internal & dns2
+    dns3 -- Resolved by --> internal & dns2
     nonhttp -----> internet
 
     https@{ shape: hex}
