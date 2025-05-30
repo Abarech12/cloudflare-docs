@@ -5,6 +5,10 @@ productLink: "/radar/"
 productArea: Developer platform
 productAreaLink: /workers/platform/changelog/platform/
 entries:
+  - publish_date: "2025-06-03"
+    title: Add web crawlers endpoints
+    description: |-
+      * Added [web crawlers endpoints](/api/resources/radar/subresources/bots/subresources/crawlers/).
   - publish_date: "2025-03-20"
     title: Endpoint deprecations and new BGP real-time routes endpoint
     description: |-
