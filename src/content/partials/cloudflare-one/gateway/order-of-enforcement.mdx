@@ -113,11 +113,11 @@ Gateway applies HTTP policies based on a combination of [action type](/cloudflar
 1. All Do Not Inspect policies are evaluated first, in order of precedence.
 2. If no policies match, all Isolate policies are evaluated in order of precedence.
 3. All Allow, Block and Do Not Scan policies are evaluated in order of precedence.
+4. The body of the HTTP request, including Data Loss Prevention (DLP), AV scanning, and file sandboxing, is evaluated.
 
 This order of enforcement allows Gateway to first determine whether decryption should occur. If a site matches a Do Not Inspect policy, it is automatically allowed through Gateway and bypasses all other HTTP policies.
 
 :::note
-
 The only exception is if you are using [Clientless Web Isolation](/cloudflare-one/policies/browser-isolation/setup/clientless-browser-isolation/) — all sites within the clientless remote browser are implicitly isolated even if they match a Do Not Inspect policy.
 :::
 
