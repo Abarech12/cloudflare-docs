@@ -4,10 +4,32 @@ import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { Ring } from "ldrs/react";
+import { MdOutlineThumbUp, MdOutlineThumbDown } from "react-icons/md";
 import "ldrs/react/Ring.css";
 
-type Messages = { role: "user" | "assistant"; content: string }[];
+type Messages = {
+	role: "user" | "assistant";
+	content: string;
+	queryId?: string;
+}[];
 type Sources = { title: string; file_path: string }[];
+
+async function sendCSATFeedback(queryId: string, positive: boolean) {
+	try {
+		await fetch("https://support-ai.cloudflaresupport.workers.dev/csat", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				queryId,
+				positive,
+			}),
+		});
+	} catch (error) {
+		console.error("Failed to send CSAT feedback:", error);
+	}
+}
 
 function Messages({
 	messages,
@@ -16,10 +38,17 @@ function Messages({
 	messages: Messages;
 	loading: boolean;
 }) {
+	const [feedbackGiven, setFeedbackGiven] = useState<Set<string>>(new Set());
+
 	const classes = {
 		base: "w-fit max-w-3/4 rounded p-4",
 		user: "bg-cl1-brand-orange text-cl1-black self-end",
 		assistant: "self-start bg-(--sl-color-bg-nav)",
+	};
+
+	const handleFeedback = async (queryId: string, positive: boolean) => {
+		await sendCSATFeedback(queryId, positive);
+		setFeedbackGiven((prev) => new Set(prev).add(queryId));
 	};
 
 	return (
@@ -27,13 +56,38 @@ function Messages({
 			{messages
 				.filter((message) => Boolean(message.content))
 				.map((message, index) => (
-					<div
-						key={index}
-						className={`${classes.base} ${message.role === "user" ? classes.user : classes.assistant}`}
-					>
-						<Markdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-							{message.content}
-						</Markdown>
+					<div key={index} className="flex flex-col gap-2">
+						<div
+							className={`${classes.base} ${message.role === "user" ? classes.user : classes.assistant}`}
+						>
+							<Markdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+								{message.content}
+							</Markdown>
+							{message.role === "assistant" && message.queryId && (
+								<div className="not-content ml-4 flex gap-2 self-start">
+									{feedbackGiven.has(message.queryId) ? (
+										<span>Thanks for your feedback!</span>
+									) : (
+										<>
+											<button
+												onClick={() => handleFeedback(message.queryId!, true)}
+												className="rounded bg-transparent p-2"
+												title="Thumbs up"
+											>
+												<MdOutlineThumbUp className="size-6 hover:text-green-600" />
+											</button>
+											<button
+												onClick={() => handleFeedback(message.queryId!, false)}
+												className="rounded bg-transparent p-2"
+												title="Thumbs down"
+											>
+												<MdOutlineThumbDown className="size-6 hover:text-red-600" />
+											</button>
+										</>
+									)}
+								</div>
+							)}
+						</div>
 					</div>
 				))}
 			{loading && (
@@ -66,6 +120,7 @@ export default function SupportAI() {
 
 		let chunkedAnswer = "";
 		let sources: Sources = [];
+		let currentQueryId: string | undefined;
 
 		await fetchEventSource(
 			// "http://localhost:8010/proxy/devdocs/ask",
@@ -105,7 +160,8 @@ export default function SupportAI() {
 
 						setMessages((messages) => {
 							const newMessages = [...messages];
-							newMessages[newMessages.length - 1].content += [
+							const lastMessage = newMessages[newMessages.length - 1];
+							lastMessage.content += [
 								"\n\n",
 								"I used these sources to answer your question, please review them if you need more information:",
 								"\n\n",
@@ -114,11 +170,21 @@ export default function SupportAI() {
 									.join("\n"),
 							].join("\n");
 
+							if (currentQueryId) {
+								lastMessage.queryId = currentQueryId;
+							}
+
 							return newMessages;
 						});
 					}
 
-					const { threadId, response, botResponse } = JSON.parse(ev.data);
+					const { threadId, response, queryId, botResponse } = JSON.parse(
+						ev.data,
+					);
+
+					if (queryId) {
+						currentQueryId = queryId;
+					}
 
 					if (botResponse?.sources) {
 						sources = botResponse.sources;
