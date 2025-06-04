@@ -64,21 +64,21 @@ function Messages({
 								{message.content}
 							</Markdown>
 							{message.role === "assistant" && message.queryId && (
-								<div className="not-content ml-4 flex gap-2 self-start">
+								<div className="not-content flex gap-2 self-start">
 									{feedbackGiven.has(message.queryId) ? (
 										<span>Thanks for your feedback!</span>
 									) : (
 										<>
 											<button
 												onClick={() => handleFeedback(message.queryId!, true)}
-												className="rounded bg-transparent p-2"
+												className="cursor-pointer rounded bg-transparent p-2"
 												title="Thumbs up"
 											>
 												<MdOutlineThumbUp className="size-6 hover:text-green-600" />
 											</button>
 											<button
 												onClick={() => handleFeedback(message.queryId!, false)}
-												className="rounded bg-transparent p-2"
+												className="cursor-pointer rounded bg-transparent p-2"
 												title="Thumbs down"
 											>
 												<MdOutlineThumbDown className="size-6 hover:text-red-600" />
