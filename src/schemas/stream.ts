@@ -3,6 +3,7 @@ import { reference } from "astro:content";
 
 export const streamSchema = z.object({
 	id: z.string(),
+	url: z.string(),
 	title: z.string(),
 	description: z.string(),
 	products: z.array(reference("products")),
